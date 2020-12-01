@@ -1,12 +1,16 @@
 package it.unibo.oop.lab.lambda.ex02;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.stream.Stream;
+import java.util.stream.*;
 
 /**
  *
@@ -31,42 +35,82 @@ public final class MusicGroupImpl implements MusicGroup {
 
     @Override
     public Stream<String> orderedSongNames() {
-        return null;
+    	final List<String> list = new ArrayList<>();
+    	songs.forEach(l -> {
+    		list.add(l.songName);
+    	});
+    	return list.stream().sorted((i, j) -> i.compareTo(j));
     }
 
     @Override
     public Stream<String> albumNames() {
-        return null;
+    	final List<String> albList = new ArrayList<>();
+    	albums.forEach((s,i) -> {
+    		albList.add(s);
+    	});
+    	return albList.stream();
     }
 
     @Override
     public Stream<String> albumInYear(final int year) {
-        return null;
+    	final List<String> list = new ArrayList<>();
+    	albums.forEach((k,v) -> {
+    		if(v == year) {
+    			list.add(k);
+    		}
+    	});
+    	return list.stream();
     }
 
     @Override
     public int countSongs(final String albumName) {
-        return -1;
+    	int cont;
+    	cont = (int) songs.stream().filter(l -> l.getAlbumName().equals(Optional.of(albumName))).count();
+    	return cont; 
     }
 
     @Override
     public int countSongsInNoAlbum() {
-        return -1;
+    	int cont;
+    	cont = (int) songs.stream().filter(l -> l.getAlbumName().isEmpty()).count();
+    	return cont; 
     }
 
     @Override
     public OptionalDouble averageDurationOfSongs(final String albumName) {
-        return null;
+    	final int cont;
+    	cont=this.countSongs(albumName);
+        final  double[] durArr = new double[1];
+        songs.stream().filter(l -> l.getAlbumName().equals(Optional.of(albumName))).forEach(l -> {
+        	durArr[0] = durArr[0] + l.getDuration();
+        });
+        final double temp = durArr[0];
+        return OptionalDouble.of(temp / cont);
     }
 
     @Override
     public Optional<String> longestSong() {
-        return null;
-    }
+    	final double[] durArr = new double[1];
+    	final String[] songName = new String[1];
+    	songs.stream().forEach(l -> {
+    		if (durArr[0] < l.getDuration()) {
+    			durArr[0] = l.getDuration();
+    			songName[0] = l.getSongName();
+    		}
+        	});
+    	return Optional.of(songName[0]);
+    } 
 
     @Override
     public Optional<String> longestAlbum() {
-        return null;
+    	final String[] songName = new String[1];
+    	final String temp = this.longestSong().get();
+    	songs.stream().filter(l -> l.getSongName().equals(temp)).forEach(l -> {
+    		final Optional<String> alb;
+    		alb = l.getAlbumName();
+    		songName[0] = alb.get();
+    	});
+    	return Optional.of(songName[0]);
     }
 
     private static final class Song {
